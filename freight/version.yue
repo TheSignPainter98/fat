@@ -13,6 +13,7 @@ macro version = ->
 export VERSION = $version!
 
 spec ->
+  import 'spec_macros' as $
   import describe, expect_that, it, matchers from require 'spec'
   import lt from matchers
 
@@ -27,4 +28,4 @@ spec ->
     it 'is ordered', ->
       lesser = '0.1'
       greater = '0.1 (2025-01-01@12:00:00)'
-      expect_that lesser, lt greater
+      $expect_that lesser, lt greater

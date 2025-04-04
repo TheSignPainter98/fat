@@ -52,8 +52,9 @@ export class MarshalBumpRelease extends Packet
   new: F '(Release) => <>', (@release) =>
 
 spec ->
+  import 'spec_macros' as $
   import TestUplinkBackend from require 'freight.peripheral.uplink'
-  import describe, expect_that, it, matchers from require 'spec'
+  import describe, it, matchers from require 'spec'
   import deep_eq, errors, matches from matchers
 
   class TestRebooter
@@ -88,9 +89,9 @@ spec ->
 
       rebooter = TestRebooter!
       upgrader = with Instigator cfg, release, uplink, rebooter
-        expect_that (-> \upgrade false), errors matches TestRebooter.marker
-      expect_that sent, deep_eq {}
-      expect_that broadcasted, deep_eq
+        $expect_that (-> \upgrade false), errors matches TestRebooter.marker
+      $expect_that sent, deep_eq {}
+      $expect_that broadcasted, deep_eq
         * protocol: 'MarshalBumpRelease'
           packet:
             :release

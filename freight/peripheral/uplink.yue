@@ -120,7 +120,8 @@ export IdempotenceToken = F '() -> IdempotenceToken', ->
   math.random 1, IDEMP_TOK_MAX
 
 spec ->
-  import describe, expect_that, it, matchers from require 'spec'
+  import 'spec_macros' as $
+  import describe, it, matchers from require 'spec'
   import deep_eq, eq, errors, matches, no_errors from matchers
 
   class TestPacket extends Packet
@@ -136,9 +137,9 @@ spec ->
 
       it 'requires a modem', ->
         if peripheral.find 'modem'
-          expect_that (-> Uplink!), no_errors!
+          $expect_that (-> Uplink!), no_errors!
         else
-          expect_that (-> Uplink!), errors matches 'cannot find modem'
+          $expect_that (-> Uplink!), errors matches 'cannot find modem'
 
     describe '\\broadcast', ->
       it 'sends the given packet', ->
@@ -153,7 +154,7 @@ spec ->
         uplink\broadcast TestPacket 'data-1'
         uplink\broadcast TestPacket 'data-2'
 
-        expect_that broadcasted, deep_eq
+        $expect_that broadcasted, deep_eq
           * protocol: 'TestPacket', message: TestPacket 'data-1'
           * protocol: 'TestPacket', message: TestPacket 'data-2'
 
@@ -168,7 +169,7 @@ spec ->
         uplink\send_to 1, TestPacket 'message-1'
         uplink\send_to 2, TestPacket 'message-2'
 
-        expect_that sent, deep_eq
+        $expect_that sent, deep_eq
           * recipient: 1, protocol: 'TestPacket', message: TestPacket 'message-1'
           * recipient: 2, protocol: 'TestPacket', message: TestPacket 'message-2'
 
@@ -176,7 +177,7 @@ spec ->
         uplink = Uplink TestUplinkBackend
           send: -> false
 
-        expect_that (-> uplink\send_to 1, TestPacket 'message-1'), errors matches "failed to send TestPacket"
+        $expect_that (-> uplink\send_to 1, TestPacket 'message-1'), errors matches "failed to send TestPacket"
 
     describe '\\receive_from_any', ->
       it 'receives the only given packet', ->
@@ -201,7 +202,7 @@ spec ->
           [] = { uplink\receive_from_any TestPacket2 }
           [] = { uplink\receive_from_any TestPacket }
 
-        expect_that received, deep_eq
+        $expect_that received, deep_eq
           * { 2, TestPacket 'message-2' }
           * { 3, TestPacket 'message-3' }
 
@@ -209,8 +210,8 @@ spec ->
         uplink = Uplink TestUplinkBackend
           receive: (_, _) -> nil, nil, nil
         id, err = uplink\receive_from_any TestPacket
-        expect_that id, eq nil
-        expect_that err, eq TIMEOUT
+        $expect_that id, eq nil
+        $expect_that err, eq TIMEOUT
 
     describe '\\receive_from', ->
       it 'receives the only given packet', ->
@@ -234,7 +235,7 @@ spec ->
         received = with {}
           [] = { uplink\receive_from 3, TestPacket }
 
-        expect_that received, deep_eq
+        $expect_that received, deep_eq
           * { 3, TestPacket 'message-3' }
 
   describe 'Packet', ->
@@ -242,9 +243,9 @@ spec ->
       original = TestPacket 'hello'
 
       correct_decode, ok = TestPacket::from original, TestPacket\protocol!
-      expect_that correct_decode, deep_eq {data: 'hello'}
-      expect_that ok, eq true
+      $expect_that correct_decode, deep_eq {data: 'hello'}
+      $expect_that ok, eq true
 
       incorrect_decode, ok = TestPacket2::from {protocol: ->}, TestPacket\protocol!
-      expect_that incorrect_decode, eq nil
-      expect_that ok, eq false
+      $expect_that incorrect_decode, eq nil
+      $expect_that ok, eq false

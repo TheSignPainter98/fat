@@ -39,31 +39,32 @@ export class Queue
         i += 1
 
 spec ->
-  import describe, expect_that, it, matchers from require 'spec'
+  import 'spec_macros' as $
+  import describe, it, matchers from require 'spec'
   import contains, deep_eq, eq from matchers
 
   describe 'Queue', ->
     it 'dequeues nil on empty', ->
       with Queue!
-        expect_that \dequeue!, eq nil
+        $expect_that \dequeue!, eq nil
 
     it 'dequeues in the right order', ->
       with Queue!
-        expect_that \len!, eq 0
+        $expect_that \len!, eq 0
         \enqueue 'one'
         \enqueue 'two'
         \enqueue 'three'
-        expect_that \len!, eq 3
-        expect_that \dequeue!, eq 'one'
-        expect_that \dequeue!, eq 'two'
-        expect_that \dequeue!, eq 'three'
-        expect_that \dequeue!, eq nil
-        expect_that \len!, eq 0
+        $expect_that \len!, eq 3
+        $expect_that \dequeue!, eq 'one'
+        $expect_that \dequeue!, eq 'two'
+        $expect_that \dequeue!, eq 'three'
+        $expect_that \dequeue!, eq nil
+        $expect_that \len!, eq 0
         \enqueue 'four'
         \enqueue 'five'
-        expect_that \len!, eq 2
-        expect_that \dequeue!, eq 'four'
-        expect_that \dequeue!, eq 'five'
+        $expect_that \len!, eq 2
+        $expect_that \dequeue!, eq 'four'
+        $expect_that \dequeue!, eq 'five'
 
     describe '\\iter', ->
       with Queue!
@@ -71,7 +72,7 @@ spec ->
         \enqueue 'two'
         \enqueue 'three'
 
-        expect_that [ entry for entry in \iter! ], deep_eq
+        $expect_that [ entry for entry in \iter! ], deep_eq
           * 'one'
           * 'two'
           * 'three'

@@ -159,11 +159,12 @@ export class FactoryHeartbeat extends Packet
   new: F '(number, string, [string], {string->string}) => <>', (@pc_id, @name, @station_names, @present_trains) =>
 
 spec ->
+  import 'spec_macros' as $
   import TestStationBackend from require 'freight.peripheral.station'
   import TestStockpileBackend from require 'freight.peripheral.stockpile'
   import TestUplinkBackend from require 'freight.peripheral.uplink'
   import TestPcBackend from require 'freight.pc'
-  import assert_that, describe, expect_that, it, matchers from require 'spec'
+  import describe, it, matchers from require 'spec'
   import deep_eq, eq, has_fields, len from matchers
 
   describe 'Factory', ->
@@ -187,7 +188,7 @@ spec ->
 
       Factory config, pc, stations, stockpile, uplink
 
-      expect_that new_name, eq CONFIG_NAME
+      $expect_that new_name, eq CONFIG_NAME
 
     it 'responds to stockpile requests', ->
       sent = {}
@@ -209,10 +210,10 @@ spec ->
       stockpile = Stockpile TestStockpileBackend
         size: => 1
         slot_content: (i) =>
-          assert_that i, eq 1
+          $assert_that i, eq 1
           count: 32, displayName: 'Stone Bricks'
         slot_capacity: (i) =>
-          assert_that i, eq 1
+          $assert_that i, eq 1
           64
       uplink = Uplink TestUplinkBackend
         receive: (_, _) =>
@@ -229,8 +230,8 @@ spec ->
       for _ = 1, 10
         factory\do_network_step!
 
-      expect_that sent, len eq 1
-      expect_that sent[1], has_fields
+      $expect_that sent, len eq 1
+      $expect_that sent[1], has_fields
         recipient: eq SERVER_ID
         message: has_fields
           idemp_tok: eq idemp_tok
@@ -287,12 +288,12 @@ spec ->
       for _ = 1, 10
         factory\do_network_step!
 
-      expect_that sent, deep_eq
+      $expect_that sent, deep_eq
         * recipient: SERVER_ID
           protocol: ScheduleResponse\protocol!
           message: ScheduleResponse idemp_tok, nil
-      expect_that applied_schedules, len eq 1
-      expect_that applied_schedules, deep_eq {schedule}
+      $expect_that applied_schedules, len eq 1
+      $expect_that applied_schedules, deep_eq {schedule}
 
     it 'responds to invalid schedule requests', ->
       sent = {}
@@ -336,11 +337,11 @@ spec ->
       for _ = 1, 10
         factory\do_network_step!
 
-      expect_that sent, deep_eq
+      $expect_that sent, deep_eq
         * recipient: SERVER_ID
           protocol: ScheduleResponse\protocol!
           message: ScheduleResponse idemp_tok, "no such station: #{STATION_NAME} at #{FACTORY_NAME}"
-      expect_that applied_schedules, deep_eq {}
+      $expect_that applied_schedules, deep_eq {}
 
     it 'responds to info requests', ->
       sent = {}
@@ -369,10 +370,10 @@ spec ->
       stockpile = Stockpile TestStockpileBackend
         size: => 1
         slot_content: (i) =>
-          assert_that i, eq 1
+          $assert_that i, eq 1
           count: 32, displayName: 'Stone Bricks'
         slot_capacity: (i) =>
-          assert_that i, eq 1
+          $assert_that i, eq 1
           64
       uplink = Uplink TestUplinkBackend
         receive: (_, _) =>
@@ -390,8 +391,8 @@ spec ->
       for _ = 1, 10
         factory\do_network_step!
 
-      expect_that sent, len eq 2
-      expect_that sent[1], has_fields
+      $expect_that sent, len eq 2
+      $expect_that sent[1], has_fields
         recipient: eq SERVER_ID
         message: has_fields
           idemp_tok: eq idemp_tok
@@ -404,7 +405,7 @@ spec ->
             stored: eq 32
             capacity: eq 64
         protocol: eq InfoResponse\protocol!
-      expect_that sent[2], has_fields
+      $expect_that sent[2], has_fields
         recipient: eq SERVER_ID
         message: has_fields
           idemp_tok: eq idemp_tok
@@ -451,10 +452,10 @@ spec ->
         with Factory config, pc, stations, stockpile, uplink
           \do_heartbeat_step!
 
-        expect_that sent, deep_eq {}
+        $expect_that sent, deep_eq {}
 
-        expect_that broadcasted, len eq 1
-        expect_that broadcasted[1], has_fields
+        $expect_that broadcasted, len eq 1
+        $expect_that broadcasted[1], has_fields
           protocol: eq FactoryHeartbeat\protocol!
           message: do
             station_names =

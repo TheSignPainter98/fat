@@ -6,7 +6,6 @@ import log from require 'freight.logger'
 import Instigator from require 'freight.upgrade.instigator'
 import VERSION from require 'freight.version'
 import declare_type, F from require 'quicktype'
-import spec from require 'spec'
 
 export subcommand = with Subcommand 'upgrade'
   \description 'upgrade all freight versions across all networks'

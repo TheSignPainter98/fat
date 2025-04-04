@@ -6,7 +6,7 @@ export macro expect_that = (expr, matcher) ->
     eqs ..= '='
   label = "[#{eqs}[#{expr}]#{eqs}]"
 
-  "(require 'spec')._expect_that #{label}, #{expr}, #{matcher}"
+  "require('spec')._expect_that #{label}, #{expr}, #{matcher}"
 
 export macro assert_that = (expr, matcher) ->
   eqs = '='
@@ -14,4 +14,4 @@ export macro assert_that = (expr, matcher) ->
     eqs ..= '='
   label = "[#{eqs}[#{expr}]#{eqs}]"
 
-  "(require 'spec')._expect_that #{label}, #{expr}, #{matcher}"
+  "require('spec')._expect_that #{label}, #{expr}, #{matcher}"

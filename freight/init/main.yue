@@ -95,7 +95,8 @@ validate_config = F '(string, string) -> boolean', (file, instance_type) ->
   true
 
 spec ->
-  import assert_that, describe, expect_that, it, matchers from require 'spec'
+  import 'spec_macros' as $
+  import describe, it, matchers from require 'spec'
   import has_fields, has_type, no_errors from matchers
 
   configs = [:name, :raw for name, raw in pairs default_config_by_type]
@@ -106,6 +107,6 @@ spec ->
       it 'is valid toml', ->
         parsed_default_config = parse_toml config.raw
 
-        expect_that parsed_default_config, has_type 'table'
-        expect_that parsed_default_config, has_fields
+        $expect_that parsed_default_config, has_type 'table'
+        $expect_that parsed_default_config, has_fields
           [config.name]: has_type 'table'

@@ -160,7 +160,8 @@ fmt_cell = F '(string, number) -> string', (string, width) ->
     "#{string\sub 1, width - 3}..."
 
 spec ->
-  import assert_that, describe, expect_that, it, matchers from require 'spec'
+  import 'spec_macros' as $
+  import describe, it, matchers from require 'spec'
   import deep_eq, eq from matchers
 
   describe 'Ledger', ->
@@ -171,15 +172,15 @@ spec ->
       ledger = Ledger LEN, save_path
       for i = 1, LEN
         ledger\add when: 'hello', what: 'world', how: tostring i
-      assert_that ledger\len!, eq LEN
+      $assert_that ledger\len!, eq LEN
 
-      expect_that [ entry for entry in ledger.entries\iter! ], deep_eq
+      $expect_that [ entry for entry in ledger.entries\iter! ], deep_eq
         * when: 'hello', what: 'world', how: '1'
         * when: 'hello', what: 'world', how: '2'
         * when: 'hello', what: 'world', how: '3'
 
       ledger\add when: 'hello', what: 'world', how: 'NEW'
-      expect_that [ entry for entry in ledger.entries\iter! ], deep_eq
+      $expect_that [ entry for entry in ledger.entries\iter! ], deep_eq
         * when: 'hello', what: 'world', how: '2'
         * when: 'hello', what: 'world', how: '3'
         * when: 'hello', what: 'world', how: 'NEW'
@@ -195,13 +196,13 @@ spec ->
       ledger1\add when: 'hello', what: 'world', how: '1'
       ledger1\add when: 'hello', what: 'world', how: '2'
       entries1 = [ entry for entry in ledger1\iter! ]
-      assert_that entries1, deep_eq
+      $assert_that entries1, deep_eq
         * when: 'hello', what: 'world', how: '1'
         * when: 'hello', what: 'world', how: '2'
 
       ledger2\load path
       entries2 = [ entry for entry in ledger2\iter! ]
-      assert_that entries2, deep_eq
+      $assert_that entries2, deep_eq
         * when: 'hello', what: 'world', how: '1'
         * when: 'hello', what: 'world', how: '2'
 
@@ -209,17 +210,17 @@ spec ->
 
   describe 'fmt_cell', ->
     it 'preserves right-size input', ->
-      expect_that (fmt_cell 'xxx', 3), eq "xxx"
+      $expect_that (fmt_cell 'xxx', 3), eq "xxx"
 
     it 'pads too-small input', ->
-      expect_that (fmt_cell 'xxx', 6), eq "xxx   "
+      $expect_that (fmt_cell 'xxx', 6), eq "xxx   "
 
     it 'truncates too-large input', ->
-      expect_that (fmt_cell 'xxxxxx', 5), eq "xx..."
+      $expect_that (fmt_cell 'xxxxxx', 5), eq "xx..."
 
   describe 'sum', ->
     it 'adds given values', ->
-      expect_that (sum {1, 2, 3, 4, 5}), eq 15
+      $expect_that (sum {1, 2, 3, 4, 5}), eq 15
 
     it 'handles no values', ->
-      expect_that (sum {}), eq 0
+      $expect_that (sum {}), eq 0

@@ -146,25 +146,26 @@ valid_field_name = F '(string) -> boolean', (name) ->
   (name\match '^[a-z_][a-z0-9_]*$')?
 
 spec ->
-  import describe, it, matchers, expect_that from require 'spec'
+  import 'spec_macros' as $
+  import describe, it, matchers from require 'spec'
   import anything, deep_eq, eq, errors, matches, no_errors from matchers
 
   describe 'StateMachineBuilder', ->
     it 'requires initial state', ->
-      expect_that (-> StateMachineBuilder!\build!), errors matches "cannot build state machine: initial state undefined"
+      $expect_that (-> StateMachineBuilder!\build!), errors matches "cannot build state machine: initial state undefined"
 
     it 'rejects invalid initial state', ->
-      expect_that (-> StateMachineBuilder!\set_initial_state('phantom')\build!), errors matches "cannot build state machine: initial state 'phantom' undefined"
+      $expect_that (-> StateMachineBuilder!\set_initial_state('phantom')\build!), errors matches "cannot build state machine: initial state 'phantom' undefined"
 
     it 'rejects duplicate state names', ->
-      expect_that (-> StateMachineBuilder!
+      $expect_that (-> StateMachineBuilder!
         \set_initial_state 'waiting'
         \add_state StateSpec 'waiting'
         \add_state StateSpec 'waiting'
         \build!), errors matches "cannot build state machine: state 'waiting' redefined"
 
     it 'rejects duplicate fields', ->
-      expect_that (-> StateMachineBuilder!
+      $expect_that (-> StateMachineBuilder!
         \set_initial_state 'waiting'
         \add_state with StateSpec 'waiting'
           \add_field 'hello', 'string'
@@ -172,7 +173,7 @@ spec ->
         \build!), errors matches "cannot build state machine: field waiting.hello redefined"
 
     it 'rejects invalid state names', ->
-      expect_that (-> StateMachineBuilder!
+      $expect_that (-> StateMachineBuilder!
         \set_initial_state '-invalid'
         \add_state with StateSpec '-invalid'
           \add_field '-invalid', 'string'
@@ -196,7 +197,7 @@ spec ->
         * 'state%-2 *%[label="state%-2%(hello, world%)"%]'
         * 'state%-2 *%-> *state%-1'
       for str in *must_contain
-        expect_that graphviz_repr, matches str
+        $expect_that graphviz_repr, matches str
 
   describe 'valid_state_name', ->
     valid_idents =
@@ -204,7 +205,7 @@ spec ->
       * 'world-123'
     for valid_ident in *valid_idents
       it "accepts '#{valid_ident}'", ->
-        expect_that (valid_state_name valid_ident), eq true
+        $expect_that (valid_state_name valid_ident), eq true
 
     invalid_idents =
       * ''
@@ -214,7 +215,7 @@ spec ->
       * 'a_b'
     for invalid_ident in *invalid_idents
       it "rejects '#{invalid_ident}'", ->
-        expect_that (valid_state_name invalid_ident), eq false
+        $expect_that (valid_state_name invalid_ident), eq false
 
   describe 'valid_field_name', ->
     valid_idents =
@@ -222,7 +223,7 @@ spec ->
       * '_world123'
     for valid_ident in *valid_idents
       it "accepts #{valid_ident}", ->
-        expect_that (valid_field_name valid_ident), eq true
+        $expect_that (valid_field_name valid_ident), eq true
 
     invalid_idents =
       * ''
@@ -231,12 +232,12 @@ spec ->
       * '.asdf'
     for invalid_ident in *invalid_idents
       it 'rejects invalid names', ->
-        expect_that (valid_field_name invalid_ident), eq false
+        $expect_that (valid_field_name invalid_ident), eq false
 
   describe 'is_empty', ->
     it 'returns correctly', ->
-      expect_that (is_empty {}), eq true
-      expect_that (is_empty {hello: 123}), eq false
+      $expect_that (is_empty {}), eq true
+      $expect_that (is_empty {hello: 123}), eq false
 
   describe 'StateMachine', ->
     make_test_sm = ->
@@ -255,7 +256,7 @@ spec ->
 
     it 'rejects new fields', ->
       test_sm = make_test_sm!
-      expect_that (-> test_sm.foo = 'bar'), errors matches [[cannot add field 'foo' to state machine]]
+      $expect_that (-> test_sm.foo = 'bar'), errors matches [[cannot add field 'foo' to state machine]]
 
     describe '.state', ->
       it 'validates changes', ->
@@ -263,56 +264,56 @@ spec ->
         test_sm\goto 'state-2',
           hello: 'asdf'
           world: 321
-        expect_that (-> test_sm.state.hello = 'hello'), no_errors!
-        expect_that (-> test_sm.state.hello = 123), errors matches 'incorrect type: expected string but got number'
+        $expect_that (-> test_sm.state.hello = 'hello'), no_errors!
+        $expect_that (-> test_sm.state.hello = 123), errors matches 'incorrect type: expected string but got number'
 
       it 'rejects new fields', ->
         test_sm = make_test_sm!
-        expect_that (-> test_sm.state.foo = 'bar'), errors matches 'no such field state%-1.foo'
+        $expect_that (-> test_sm.state.foo = 'bar'), errors matches 'no such field state%-1.foo'
 
     describe '\\goto', ->
       it 'requires at least one argument', ->
         test_sm = make_test_sm!
-        expect_that (-> test_sm\goto!), errors anything!
+        $expect_that (-> test_sm\goto!), errors anything!
 
       it 'correctly transitions states', ->
         test_sm = make_test_sm!
-        expect_that test_sm.state.name, eq 'state-1'
+        $expect_that test_sm.state.name, eq 'state-1'
 
         test_sm\goto 'state-2',
           hello: 'asdf'
           world: 4321
-        expect_that test_sm.state.name, eq 'state-2'
-        expect_that test_sm.state.hello, eq 'asdf'
-        expect_that test_sm.state.world, eq 4321
-        expect_that test_sm.state.optional, eq nil
+        $expect_that test_sm.state.name, eq 'state-2'
+        $expect_that test_sm.state.hello, eq 'asdf'
+        $expect_that test_sm.state.world, eq 4321
+        $expect_that test_sm.state.optional, eq nil
 
         test_sm\goto 'state-1'
-        expect_that test_sm.state.name, eq 'state-1'
-        expect_that (-> test_sm.state.hello), errors matches 'no such field state%-1.hello'
-        expect_that (-> test_sm.state.world), errors matches 'no such field state%-1.world'
-        expect_that (-> test_sm.state.optional), errors matches 'no such field state%-1.optional'
+        $expect_that test_sm.state.name, eq 'state-1'
+        $expect_that (-> test_sm.state.hello), errors matches 'no such field state%-1.hello'
+        $expect_that (-> test_sm.state.world), errors matches 'no such field state%-1.world'
+        $expect_that (-> test_sm.state.optional), errors matches 'no such field state%-1.optional'
 
       it 'rejects invalid transitions', ->
         test_sm = make_test_sm!
-        expect_that (-> test_sm\goto 'invalid'), errors matches 'no such transition: state%-1 %-> invalid'
+        $expect_that (-> test_sm\goto 'invalid'), errors matches 'no such transition: state%-1 %-> invalid'
 
         test_sm\goto 'state-3'
-        expect_that (-> test_sm\goto 'state-1'), errors matches 'no such transition: state%-3 %-> state%-1'
+        $expect_that (-> test_sm\goto 'state-1'), errors matches 'no such transition: state%-3 %-> state%-1'
 
       it 'rejects transitions with missing data', ->
         test_sm = make_test_sm!
-        expect_that (-> test_sm\goto 'state-2'), errors matches 'incorrect type: expected [sn][tu][rm][ib][ne][gr] but got nil'
-        expect_that (-> test_sm\goto 'state-2', hello: 'asdf'), errors matches 'incorrect type: expected number but got nil'
-        expect_that (-> test_sm\goto 'state-2', world: 123), errors matches 'incorrect type: expected string but got nil'
+        $expect_that (-> test_sm\goto 'state-2'), errors matches 'incorrect type: expected [sn][tu][rm][ib][ne][gr] but got nil'
+        $expect_that (-> test_sm\goto 'state-2', hello: 'asdf'), errors matches 'incorrect type: expected number but got nil'
+        $expect_that (-> test_sm\goto 'state-2', world: 123), errors matches 'incorrect type: expected string but got nil'
 
       it 'validates state fields', ->
         test_sm = make_test_sm!
-        expect_that (-> test_sm\goto 'state-2', hello: 'asdf', world: 'fdsa'), errors matches 'incorrect type: expected number but got string'
+        $expect_that (-> test_sm\goto 'state-2', hello: 'asdf', world: 'fdsa'), errors matches 'incorrect type: expected number but got string'
 
       it 'rejects extra state fields', ->
         test_sm = make_test_sm!
-        expect_that (-> test_sm\goto 'state-3', spare: 'spare'), errors matches 'no such field state%-3.spare'
+        $expect_that (-> test_sm\goto 'state-3', spare: 'spare'), errors matches 'no such field state%-3.spare'
 
   describe 'set_reporter', ->
     it 'is respected by state machines', ->
@@ -335,7 +336,7 @@ spec ->
 
       test_sm\goto 'state-2', data
 
-      expect_that states, deep_eq
+      $expect_that states, deep_eq
         * { name: 'state-2', ...data }
 
       test_sm\goto 'state-1'
@@ -343,7 +344,7 @@ spec ->
       test_sm\goto 'state-1'
       test_sm\goto 'state-2', data
 
-      expect_that [ state.<index> for state in *states ], deep_eq
+      $expect_that [ state.<index> for state in *states ], deep_eq
         * { name: 'state-2', ...data }
         * { name: 'state-1' }
         * { name: 'state-2', ...data }

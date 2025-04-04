@@ -51,7 +51,6 @@ export F = (type_spec, fn) ->
       err = check checker, (select i, ...)
       if err?
         error "return value #{i} incorrect: #{err}", 2
-
     ...
 
   param_types = fn_type\param_checkers!

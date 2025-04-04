@@ -45,14 +45,15 @@ export class Multiplexer
     @output_coroutine
 
 spec ->
-  import describe, expect_that, it, matchers from require 'spec'
+  import 'spec_macros' as $
+  import describe, it, matchers from require 'spec'
   import anything, deep_eq, errors, eq from matchers
 
   describe 'Multiplexer', ->
     it 'handles no sources', ->
       with Multiplexer 'string'
         sent = [ v for v in \iter! ]
-        expect_that sent, deep_eq {}
+        $expect_that sent, deep_eq {}
 
     it 'handles a single source', ->
       with Multiplexer 'string'
@@ -60,15 +61,15 @@ spec ->
           \send 'a'
           \send 'b'
           \send 'c'
-        expect_that (\add source), eq nil
+        $expect_that (\add source), eq nil
 
         sent = [ v for v in \iter! ]
-        expect_that sent, deep_eq
+        $expect_that sent, deep_eq
           * 'a'
           * 'b'
           * 'c'
 
-        expect_that (-> [ v for v in \iter! ]), errors anything!
+        $expect_that (-> [ v for v in \iter! ]), errors anything!
 
     it 'round-robin-schedules other sources', ->
       with Multiplexer 'string'
@@ -80,10 +81,10 @@ spec ->
           \send 'methos'
 
         sent = [ v for v in \iter! ]
-        expect_that sent, deep_eq
+        $expect_that sent, deep_eq
           * 'my'
           * 'name'
           * 'is'
           * 'methos'
 
-        expect_that (-> [ v for v in \iter! ]), errors anything!
+        $expect_that (-> [ v for v in \iter! ]), errors anything!

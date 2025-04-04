@@ -246,7 +246,8 @@ class Lexer
       ret
 
 spec ->
-  import assert_that, expect_that, describe, it, matchers from require 'spec'
+  import 'spec_macros' as $
+  import describe, it, matchers from require 'spec'
   import deep_eq, eq, errors, matches from matchers
 
   describe 'Lexer', ->
@@ -257,7 +258,7 @@ spec ->
           [] = token
 
     it 'emits structural tokens', ->
-      expect_that (tokens '{}[],=.\r\n'), deep_eq
+      $expect_that (tokens '{}[],=.\r\n'), deep_eq
         * Symbol T_BRACE_OPEN
         * Symbol T_BRACE_CLOSE
         * Symbol T_BRACKET_OPEN
@@ -270,7 +271,7 @@ spec ->
         * Symbol T_EOF
 
     it 'emits values', ->
-      expect_that (tokens [['hello' '''he\nllo''' 123 -1234.5 true false]]), deep_eq
+      $expect_that (tokens [['hello' '''he\nllo''' 123 -1234.5 true false]]), deep_eq
         * Symbol T_STRING, 'hello'
         * Symbol T_STRING, 'he\\nllo'
         * Symbol T_NUMBER, 123
@@ -280,27 +281,27 @@ spec ->
         * Symbol T_EOF
 
     it 'ignores comments', ->
-      expect_that (tokens '#hello\n#world'), deep_eq
+      $expect_that (tokens '#hello\n#world'), deep_eq
         * Symbol T_NEWLINE
         * Symbol T_EOF
 
     it 'rejects unexpectec characters', ->
-      expect_that (-> tokens '~'), errors matches [[unexpected character '~']]
+      $expect_that (-> tokens '~'), errors matches [[unexpected character '~']]
 
     describe '\\peek', ->
       it 'matches \\next', ->
         lexer = Lexer '{}'
-        assert_that lexer\peek!, deep_eq Symbol T_BRACE_OPEN
-        assert_that lexer\peek!, deep_eq Symbol T_BRACE_OPEN
-        assert_that lexer\next!, deep_eq Symbol T_BRACE_OPEN
-        assert_that lexer\peek!, deep_eq Symbol T_BRACE_CLOSE
-        assert_that lexer\peek!, deep_eq Symbol T_BRACE_CLOSE
-        assert_that lexer\next!, deep_eq Symbol T_BRACE_CLOSE
+        $assert_that lexer\peek!, deep_eq Symbol T_BRACE_OPEN
+        $assert_that lexer\peek!, deep_eq Symbol T_BRACE_OPEN
+        $assert_that lexer\next!, deep_eq Symbol T_BRACE_OPEN
+        $assert_that lexer\peek!, deep_eq Symbol T_BRACE_CLOSE
+        $assert_that lexer\peek!, deep_eq Symbol T_BRACE_CLOSE
+        $assert_that lexer\next!, deep_eq Symbol T_BRACE_CLOSE
 
       it 'returns EOF at EOF', ->
         lexer = Lexer ''
-        expect_that lexer\peek!, deep_eq Symbol T_EOF
-        expect_that lexer\peek!, deep_eq Symbol T_EOF
+        $expect_that lexer\peek!, deep_eq Symbol T_EOF
+        $expect_that lexer\peek!, deep_eq Symbol T_EOF
 
   describe 'TomlParser', ->
     parse_ast = (input) ->
@@ -309,33 +310,31 @@ spec ->
         with {}
           for token in (Lexer raw).tokens
             [] = token
-      import repr from require 'spec'
-      print repr tokens input
       (TomlParser Lexer input)\parse!
 
     it 'accepts empty', ->
-      expect_that (parse_ast ''), deep_eq Ast!
-      expect_that (parse_ast '\n'), deep_eq Ast!
+      $expect_that (parse_ast ''), deep_eq Ast!
+      $expect_that (parse_ast '\n'), deep_eq Ast!
 
     it 'accepts root table', ->
-      expect_that (parse_ast '\nkey=true'), deep_eq Ast
+      $expect_that (parse_ast '\nkey=true'), deep_eq Ast
         * Entry (Key {'key'}), Value true
-      expect_that (parse_ast 'key=1234\nkey=-1234.5'), deep_eq Ast
+      $expect_that (parse_ast 'key=1234\nkey=-1234.5'), deep_eq Ast
         * Entry (Key {'key'}), Value 1234
         * Entry (Key {'key'}), Value -1234.5
-      expect_that (parse_ast "key='aa'\n\nkey='aa'"), deep_eq Ast
+      $expect_that (parse_ast "key='aa'\n\nkey='aa'"), deep_eq Ast
         * Entry (Key {'key'}), Value 'aa'
         * Entry (Key {'key'}), Value 'aa'
-      expect_that (parse_ast 'key=true\nkey=false\n'), deep_eq Ast
+      $expect_that (parse_ast 'key=true\nkey=false\n'), deep_eq Ast
         * Entry (Key {'key'}), Value true
         * Entry (Key {'key'}), Value false
 
     it 'accepts composite keys', ->
-      expect_that (parse_ast 'key1.key2=true'), deep_eq Ast
+      $expect_that (parse_ast 'key1.key2=true'), deep_eq Ast
         * Entry (Key {'key1', 'key2'}), Value true
 
     it 'accepts named sections', ->
-      expect_that (parse_ast "
+      $expect_that (parse_ast "
 
         [table]
 
@@ -352,7 +351,7 @@ spec ->
           * Entry (Key {'key'}), Value 'value'
 
     it 'accepts both root and named sections', ->
-      expect_that (parse_ast "
+      $expect_that (parse_ast "
         key = 'value'
         [table]
         key = 'value'
@@ -360,7 +359,7 @@ spec ->
         * Section (TableHeader Key {'table'}), {Entry (Key {'key'}), Value 'value'}
 
     it 'accepts empty sections', ->
-      expect_that (parse_ast "
+      $expect_that (parse_ast "
         [table1]
         [table2]
         [[array]]
@@ -376,7 +375,7 @@ spec ->
       ast = Ast
         * Entry (Key {'key1'}), Value true
         * Entry (Key {'key2', 'key3'}), Value 'hello'
-      expect_that ast\construct_value!, deep_eq
+      $expect_that ast\construct_value!, deep_eq
         key1: true
         key2:
           key3: 'hello'
@@ -392,7 +391,7 @@ spec ->
           * Entry (Key {'key5'}), Value 'hello'
         * Section (TableHeader Key {'table2', 'table3'}),
           * Entry (Key {'key6'}), Value 'world'
-      expect_that ast\construct_value!, deep_eq
+      $expect_that ast\construct_value!, deep_eq
         table1:
           key1: true
           key2:
@@ -415,7 +414,7 @@ spec ->
           * Entry (Key {'key2', 'key3'}), Value 'hello'
         * Section (ArrayOfTablesHeader Key {'table2', 'table3'}),
           * Entry (Key {'key4'}), Value 'hello'
-      expect_that ast\construct_value!, deep_eq
+      $expect_that ast\construct_value!, deep_eq
         table1:
           * key1: true
             key2:
@@ -430,8 +429,8 @@ spec ->
 
   describe 'parse_toml', ->
     it 'returns an empty table on empty input', ->
-      expect_that (parse_toml ''), deep_eq {}
+      $expect_that (parse_toml ''), deep_eq {}
 
     it 'parses toml and returns its value', ->
-      expect_that (parse_toml "hello = 'world'"), deep_eq
+      $expect_that (parse_toml "hello = 'world'"), deep_eq
         hello: 'world'

@@ -80,7 +80,8 @@ export class TestStockpileBackend
     @slot_capacity = F '(number) => number', slot_capacity
 
 spec ->
-  import describe, expect_that, it, matchers from require 'spec'
+  import 'spec_macros' as $
+  import describe, it, matchers from require 'spec'
   import deep_eq, errors, matches from matchers
 
   describe 'Stockpile', ->
@@ -97,7 +98,7 @@ spec ->
             32 * slot_id
 
         info = stockpile\info!
-        expect_that info, deep_eq {
+        $expect_that info, deep_eq {
           item: 'Diamond Axe'
           stored: 16 * (1 + 2 + 3 + 4)
           capacity: 32 * (1 + 2 + 3 + 4)
@@ -117,4 +118,4 @@ spec ->
             count: 1, :displayName
           slot_capacity: (slot_id) => 1
 
-        expect_that (-> stockpile\info!), errors matches 'stockpile impure: contains both Diamond Axe and Iron Axe'
+        $expect_that (-> stockpile\info!), errors matches 'stockpile impure: contains both Diamond Axe and Iron Axe'

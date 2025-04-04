@@ -169,8 +169,9 @@ export class TestStationBackend
     @train_name = F '() => ?string', train_name
 
 spec ->
+  import 'spec_macros' as $
   import T from require 'quicktype'
-  import describe, expect_that, it, matchers from require 'spec'
+  import describe, it, matchers from require 'spec'
   import anything, errors, no_errors from matchers
 
   describe 'Station', ->
@@ -196,7 +197,7 @@ spec ->
               conditions:
                 * { CARGO_INACTIVE_CONDITION, CARGO_INACTIVE_TIMEOUT }
                 * { OVERALL_TIMEOUT }
-        expect_that (-> station\apply_schedule valid_schedule), no_errors!
+        $expect_that (-> station\apply_schedule valid_schedule), no_errors!
 
       it 'rejects invalid schedules', ->
         invalid_schedules =
@@ -218,7 +219,7 @@ spec ->
           * { cyclic: false, entries: {{instruction: {id: 'create:destination', data: text: 'station'}, conditions: {{id: 'create:idle', data: {value: 5, time_unit: 'asdf'}}}}} }
           * { cyclic: false, entries: {{instruction: {id: 'create:destination', data: text: 'station'}, conditions: {{id: 'create:idle', data: {value: 5, time_unit: -1}}}}} }
         for invalid_schedule in *invalid_schedules
-          expect_that (-> station\apply_schedule invalid_schedule), errors anything!
+          $expect_that (-> station\apply_schedule invalid_schedule), errors anything!
 
       it 'applies the given schedule in world', ->
         if not _G.skip_minecraft_tests

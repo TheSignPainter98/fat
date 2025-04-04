@@ -30,7 +30,8 @@ export class Tester
     true, nil
 
 spec ->
-  import describe, expect_that, it, matchers from require 'spec'
+  import 'spec_macros' as $
+  import describe, it, matchers from require 'spec'
   import eq, has_type from matchers
 
   describe 'Tester', ->
@@ -41,8 +42,8 @@ spec ->
         content: [[]]
 
       ok, err = Tester!\test release
-      expect_that ok, eq true
-      expect_that err, eq nil
+      $expect_that ok, eq true
+      $expect_that err, eq nil
 
     -- NOTE: the following two tests are deactivated as it is impossible to
     -- both suppress the output of a subprocess and capture its return value

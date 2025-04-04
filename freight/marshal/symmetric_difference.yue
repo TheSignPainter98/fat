@@ -13,21 +13,22 @@ export symmetric_difference = F '([some], [some]) -> <[some], [some]>', (xs, ys)
   not_in_ys, not_in_xs
 
 spec ->
-  import describe, expect_that, it, matchers from require 'spec'
+  import 'spec_macros' as $
+  import describe, it, matchers from require 'spec'
   import deep_eq from matchers
 
   describe 'symmetric_difference', ->
     it 'handles empty inputs', ->
       left, right = symmetric_difference {}, {}
-      expect_that left, deep_eq {}
-      expect_that right, deep_eq {}
+      $expect_that left, deep_eq {}
+      $expect_that right, deep_eq {}
 
     it 'handles equal inputs', ->
       left, right = symmetric_difference { 'a', 'b', 'c' }, { 'c', 'b', 'a' }
-      expect_that left, deep_eq {}
-      expect_that right, deep_eq {}
+      $expect_that left, deep_eq {}
+      $expect_that right, deep_eq {}
 
     it 'handles non-empty, non-contained, intersecting inputs', ->
       left, right = symmetric_difference { 'a', 'b' }, { 'b', 'c' }
-      expect_that left, deep_eq {'a'}
-      expect_that right, deep_eq {'c'}
+      $expect_that left, deep_eq {'a'}
+      $expect_that right, deep_eq {'c'}

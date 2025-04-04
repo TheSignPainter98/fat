@@ -175,7 +175,8 @@ class Marshal
   ut_trains: F '() => {string->TrainStatus}', => @trains
 
 spec ->
-  import assert_that, describe, expect_that, it, matchers from require 'spec'
+  import 'spec_macros' as $
+  import describe, it, matchers from require 'spec'
   import deep_eq, eq, has_fields from matchers
 
   describe 'Marshal', ->
@@ -214,7 +215,7 @@ spec ->
             \do_network_step!
 
           epoch = \ut_epoch!
-          assert_that .factories, has_fields
+          $assert_that .factories, has_fields
             factory_1: has_fields
               name: eq 'factory_1'
               pc_id: eq 1
@@ -248,7 +249,7 @@ spec ->
           for i = 1, EXPECTED_FACTORIES
             \do_network_step!
 
-          assert_that \ut_factories!, has_fields
+          $assert_that \ut_factories!, has_fields
             factory_1: has_fields
               name: eq 'factory_1'
               pc_id: eq 1
@@ -282,7 +283,7 @@ spec ->
           \ut_set_epoch 10
           \on_new_epoch!
 
-          assert_that \ut_factories!, deep_eq {}
+          $expect_that \ut_factories!, deep_eq {}
 
       it 'prunes lost trains', ->
         config =
@@ -309,7 +310,7 @@ spec ->
           \do_network_step!
 
           epoch = \ut_epoch!
-          expect_that \ut_trains!, has_fields
+          $expect_that \ut_trains!, has_fields
             train_1: has_fields
               name: eq 'train_1'
               last_seen_epoch: eq epoch
@@ -320,3 +321,8 @@ spec ->
               last_seen_epoch: eq epoch
               last_seen_at_factory: eq 'factory_1'
               last_seen_at_station: eq 'station_2'
+
+  describe 'SomeThing', ->
+    it 'has some property', ->
+      my_func = -> 'hello'
+      $expect_that my_func!, eq 'world'
